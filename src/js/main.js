@@ -1,6 +1,7 @@
 import { applyFilter } from './filter';
 
 let images = [];
+let worker = new Worker('webworker.js');
 
 function loadImageAndDrwaInCanvas(imageFile, imagesContainer) {
 
@@ -65,12 +66,24 @@ function applyFilterToAllImages() {
     const context = canvas.getContext("2d");
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    applyFilter(imageData.data, canvas.width, canvas.height);
-    context.putImageData(imageData, 0, 0);
+    worker.postMessage({
+      imageId: image.id,
+      imageData: imageData,
+      width: canvas.width,
+      height: canvas.height
+    });
   })
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById('images-input').addEventListener('change', handleFileSelect, false);
   document.getElementById('images-apply-filter').addEventListener('click', applyFilterToAllImages, false);
+
+  worker.addEventListener('message', function(event) {
+    let { imageId, imageData } = event.data;
+    const image = document.getElementById(imageId);
+    const canvas = image.firstChild;
+    const context = canvas.getContext('2d');
+    context.putImageData(imageData, 0, 0);
+  }, false);
 });
