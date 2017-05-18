@@ -65,10 +65,12 @@ function applyFilterToAllImages() {
     const context = canvas.getContext("2d");
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    // .. to complete
+    applyFilter(imageData.data, canvas.width, canvas.height);
+    context.putImageData(imageData, 0, 0);
   })
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById('images-input').addEventListener('change', handleFileSelect, false);
+  document.getElementById('images-apply-filter').addEventListener('click', applyFilterToAllImages, false);
 });
